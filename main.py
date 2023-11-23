@@ -57,21 +57,42 @@ def get_teammates_with_matching_id(participants, teamId):
             team_array.append(participant['summonerId'])
     return team_array
 
-def get_winrate(participants):
+def get_winrate(participants, queue_type): # 'RANKED_SOLO_5X5' or 'RANKED_FLEX_SR'
+    winrates =[]
+    queue_type = queue_type
     for match in participants:
         for player in match:
             req_url=f'{api_LEAGUE_v4}{player}'
             response = requests.get(req_url,headers=headers).json()
-            print(response)
+            for item in response:
+                if item.get('queueType') == queue_type:                    
+                    wins = item.get('wins',0)
+                    losses = item.get('losses', 0)
+                    total_games = wins + losses
+                    if total_games > 0:
+                        winrate = round((wins / total_games),2)
+                        winrates.append(winrate)
+                    else:
+                        winrates.append(0)  # Append 0 if no games played
+                    #losses.append(item.get('losses',0))
+                else:
+                    continue        
+                        
+
+    print(f'winrates for {queue_type}: {winrates}')
+    
+            
             
             
             
     
 def main():
+    print('running...')
     summoner_info = get_summoner_info()
     summoner_matches = get_matches(summoner_info)   
     participants = get_participants(summoner_matches)
-    get_winrate(participants)
+    get_winrate(participants,queue_type='RANKED_SOLO_5X5')# 'RANKED_SOLO_5X5' or 'RANKED_FLEX_SR'
+    #get_winrate(participants,'RANKED_FLEX_SR')
     
     
     
