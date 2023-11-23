@@ -33,26 +33,39 @@ def get_matches(summoner_info):
     #print(f'summoner_matches: {summoner_matches}')
     return summoner_matches
 
-def get_summoner_names(summoner_matches): 
+def get_participants(summoner_matches):
+    summoner_names = []
+    participants = []
     for match in range(len(summoner_matches)):
         req_url = f'{api_MATCH_v5}{summoner_matches[match]}'
         response = requests.get(req_url, headers = headers).json()
-        participants = response['info']['participants']
-        return [participant['summonerName'] for participant in participants]
+        participants.append(response['info']['participants'])
+        teamId = get_team_id(participants)
+        summoner_names.append(get_teammates_with_matching_id(participants,teamId))
+    return summoner_names
         
-    
-
-def get_teammates(participants_array):
-    
-    for participant in participants_array:
-        return
-        
+ 
+def get_team_id(participants):
+     for participant in participants:
+        if participant['summonerName'] == name:
+            return participant['teamId']
+ 
+def get_teammates_with_matching_id(participants, teamId):#
+    team_array = []
+    print(f'my teamId = {teamId}')
+    for participant in participants:
+        print(participant['teamId'])
+        if participant['teamId'] == teamId:
+            team_array.append(participant['summonerName'])
+    return team_array
     
 def main():
     summoner_info = get_summoner_info()
     summoner_matches = get_matches(summoner_info)   
-    extracted_info = get_summoner_names(summoner_matches)
-    print(extracted_info)
+    participants = get_participants(summoner_matches)
+    print(participants)
+    
+    
     
     
     
