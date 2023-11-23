@@ -19,6 +19,7 @@ name = 'ChrisK1987'
 api_SUMMONER_v4 = 'https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/'
 api_MATCHES_v5 = 'https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/'
 api_MATCH_v5 = 'https://europe.api.riotgames.com/lol/match/v5/matches/'
+api_LEAGUE_v4= 'https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/'
 
 
 def get_summoner_info():
@@ -35,14 +36,13 @@ def get_matches(summoner_info):
 
 def get_participants(summoner_matches):
     summoner_names = []
-    participants = []
     for match in range(len(summoner_matches)):
         req_url = f'{api_MATCH_v5}{summoner_matches[match]}'
         response = requests.get(req_url, headers = headers).json()
-        participants.append(response['info']['participants'])
-        teamId = get_team_id(participants)
-        summoner_names.append(get_teammates_with_matching_id(participants,teamId))
+        teamId = get_team_id(response['info']['participants'])
+        summoner_names.append(get_teammates_with_matching_id(response['info']['participants'],teamId))
     return summoner_names
+    
         
  
 def get_team_id(participants):
@@ -50,20 +50,29 @@ def get_team_id(participants):
         if participant['summonerName'] == name:
             return participant['teamId']
  
-def get_teammates_with_matching_id(participants, teamId):#
+def get_teammates_with_matching_id(participants, teamId):
     team_array = []
-    print(f'my teamId = {teamId}')
     for participant in participants:
-        print(participant['teamId'])
-        if participant['teamId'] == teamId:
-            team_array.append(participant['summonerName'])
+        if (participant['teamId'] == teamId) and (participant['summonerName'] != name):
+            team_array.append(participant['summonerId'])
     return team_array
+
+def get_winrate(participants):
+    for match in participants:
+        for player in match:
+            req_url=f'{api_LEAGUE_v4}{player}'
+            response = requests.get(req_url,headers=headers).json()
+            print(response)
+            
+            
+            
     
 def main():
     summoner_info = get_summoner_info()
     summoner_matches = get_matches(summoner_info)   
     participants = get_participants(summoner_matches)
-    print(participants)
+    get_winrate(participants)
+    
     
     
     
