@@ -14,6 +14,5 @@
 ## Tech stack
 
 - Starting with Jupyter notebooks to try and understand the RIOT API
-- Python backend
-- Django / flask server
-- html, CSS , Java front
+- Python scripts to understand the api calls and manipulations
+- will re write in javascript and use express js in a different repo
